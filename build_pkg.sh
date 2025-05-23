@@ -30,13 +30,14 @@ if [ ! -d "${BUILD_DIR}" ] ; then
 fi
 
 # build the dylib
-xcodebuild \
+echo "Building ${TOOL}.plugin..."
+xcodebuild build \
     -project "${PROJ}" \
     -configuration Release \
     -scheme "${TOOL}" \
     -destination "generic/platform=macOS" \
     -derivedDataPath "${BUILD_DIR}" \
-    build 1>/dev/null
+    1>/dev/null
 
 check_exit_code "$?" "Error building ${TOOL}.plugin"
 
@@ -51,12 +52,15 @@ chmod -R 755 "${PKG_ROOT}"
 cp "${BUILD_DIR}/Build/Products/Release/${TOOL}.plugin" "${PKG_ROOT}/usr/local/munki/middleware/"
 
 # build the pkg!
+echo "Building pkg for ${TOOL}..."
 pkgbuild \
     --root "${PKG_ROOT}" \
     --identifier "com.googlecode.munki.${TOOL}" \
     --version "${VERSION}" \
     --ownership recommended \
     "${THISDIR}/${TOOL}-${VERSION}.pkg"
+
+check_exit_code "$?" "Error building ${TOOL} pkg"
 
 #if [ $? -eq 0 ] ; then
 #    # clean up!
